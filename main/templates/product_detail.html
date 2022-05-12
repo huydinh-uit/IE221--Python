@@ -1,3 +1,5 @@
+<!-- page chi tiết sản phẩm -->
+
 {% extends 'base.html' %}
 {% load static %}
 {% block content %}
@@ -13,19 +15,11 @@
 			<p>{{data.detail}}</p>
 			<hr/>
 			<table class="table table-bordered">
-				<!-- <tr>
-					<th>Colors</th>
-					<td>
-						{% for color in colors %}
-							<button class="btn btn-lg choose-color" data-color="{{color.color__id}}" style="background-color: {{color.color__color_code}}"></button>
-						{% endfor %}
-					</td>
-				</tr> -->
 				<tr>
 					<th>Số trang</th>
 					<td>
 						{% for size in sizes %}
-						<button data-price="{{size.price}}" class="btn btn-outline-secondary btn-sm choose-size color{{size.color__id}}">{{size.size__title}}</button>
+						<p>{{size.size__title}}</p>
 						{% endfor %}
 					</td>
 				</tr>
@@ -41,7 +35,7 @@
 			  	<input type="hidden" class="product-image-{{data.id}}" value="{{data.productattribute_set.first.image}}" />
 		          <input type="hidden" class="product-id-{{data.id}}" value="{{data.id}}" />
 		          <input type="hidden" class="product-title-{{data.id}}" value="{{data.title}}" />
-			    <button class="btn btn-primary btn-sm add-to-cart" data-index="{{data.id}}" type="button" id="addToCartBtn"><i class="fa fa-shopping-cart"></i> Add to Cart</button>
+			    <button class="btn btn-info btn-sm add-to-cart" data-index="{{data.id}}" type="button" id="addToCartBtn"><i class="fa fa-shopping-cart"></i> Add to Cart</button>
 			  </div>
 			</div>
 		</div>
@@ -71,7 +65,7 @@
 			<h3 class="my-3">Reviews - <span class="avg-rating">{{avg_reviews.avg_rating}}</span>/5 <i class="fa fa-star text-warning"></i>
 				{% if user.is_authenticated %}
 				{% if canAdd %}
-				<button data-toggle="modal" data-target="#productReview" type="button" class="btn btn-warning btn-sm float-right reviewBtn">Thêm đánh giá</button>
+				<button data-toggle="modal" data-target="#productReview" type="button" class="btn btn-dark btn-sm float-right reviewBtn">Thêm đánh giá</button>
 				{% endif %}
 				{% endif %}
 			</h3>
@@ -142,7 +136,7 @@
 			    <h6 class="card-text"><a href="/product/{{product.slug}}/{{product.id}}">{{product.title}}</a></h6>
 			  </div>
 			  <div class="card-footer">
-			  	<button class="btn btn-sm btn-primary"><i class="fa fa-shopping-cart"></i></button>
+			  	<button class="btn btn-sm btn-info"><i class="fa fa-shopping-cart"></i></button>
 			  	<button class="btn btn-sm btn-danger"><i class="fa fa-heart"></i></button>
 			  	<span class="float-right">
 			  		4.5/5
