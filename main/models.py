@@ -1,9 +1,13 @@
 from django.db import models
 from django.utils.html import mark_safe
 from django.contrib.auth.models import User
+
+""""Định nghĩa các class như Product, Category, Banner..."""
+
 # Banner
 class Banner(models.Model):
-    img=models.ImageField(upload_to="banner_imgs/")
+    """"class banner: hiển thị quảng cáo cho store"""
+    img=models.ImageField(upload_to="banner_imgs/") # cac img thuộc Banner sẽ có path dạng: banner_imgs/img_1/, tương tự với các class khác như Category, Product...
     alt_text=models.CharField(max_length=300)
 
     class Meta:
@@ -17,6 +21,7 @@ class Banner(models.Model):
 
 # Category Danh muc
 class Category(models.Model):
+    """"Danh mục để phân thể loại sản phẩm"""
     title=models.CharField(max_length=100)
     image=models.ImageField(upload_to="danhmuc_imgs/") #
 
@@ -31,6 +36,7 @@ class Category(models.Model):
 
 # Brand Tac gia
 class Brand(models.Model):
+    """"Tác giả"""
     title=models.CharField(max_length=100)
     image=models.ImageField(upload_to="tacgia_imgs/") #
 
@@ -55,7 +61,7 @@ class Color(models.Model):
         return self.title
 
 # Size So trang
-""""So trang"""
+""""Số trang"""
 class Size(models.Model):
     title=models.CharField(max_length=100)
 
@@ -68,6 +74,7 @@ class Size(models.Model):
 
 # Product Model
 class Product(models.Model):
+    """"class product, mang thông tin sản phẩm"""
     title=models.CharField(max_length=200)
     slug=models.CharField(max_length=400)
     detail=models.TextField()
@@ -85,6 +92,7 @@ class Product(models.Model):
 
 # Product Attribute
 class ProductAttribute(models.Model):
+    """"Class chứa các thuộc tính của class Product"""
     product=models.ForeignKey(Product,on_delete=models.CASCADE)
     color=models.ForeignKey(Color,on_delete=models.CASCADE)
     size=models.ForeignKey(Size,on_delete=models.CASCADE)
@@ -101,12 +109,15 @@ class ProductAttribute(models.Model):
         return mark_safe('<img src="%s" width="50" height="50" />' % (self.image.url))
 
 # Order
+""""Trạng thái đơn hàng"""
 status_choice=(
         ('process','In Process'),
         ('shipped','Shipped'),
         ('delivered','Delivered'),
     )
+
 class CartOrder(models.Model):
+    """"Giỏ hàng thanh toán """
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     total_amt=models.FloatField()
     paid_status=models.BooleanField(default=False)
@@ -118,6 +129,7 @@ class CartOrder(models.Model):
 
 # OrderItems
 class CartOrderItems(models.Model):
+    """"Thông tin items của giỏ hàng"""
     order=models.ForeignKey(CartOrder,on_delete=models.CASCADE)
     invoice_no=models.CharField(max_length=150)
     item=models.CharField(max_length=150)
@@ -133,6 +145,7 @@ class CartOrderItems(models.Model):
         return mark_safe('<img src="/media/%s" width="50" height="50" />' % (self.image))
 
 # Product Review
+""""Có 5 cấp độ sao để đánh giá sản phẩm"""
 RATING=(
     (1,'1'),
     (2,'2'),
@@ -140,7 +153,9 @@ RATING=(
     (4,'4'),
     (5,'5'),
 )
+
 class ProductReview(models.Model):
+    """"Đánh giá sản phẩm: user infor, sản phẩm, review, rating"""
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     product=models.ForeignKey(Product,on_delete=models.CASCADE)
     review_text=models.TextField()
@@ -154,6 +169,7 @@ class ProductReview(models.Model):
 
 # WishList
 class Wishlist(models.Model):
+    """"Danh sách các sản phẩm yêu thích"""
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     product=models.ForeignKey(Product,on_delete=models.CASCADE)
 
@@ -162,6 +178,7 @@ class Wishlist(models.Model):
 
 # AddressBook
 class UserAddressBook(models.Model):
+    """"User, địa chỉ, sdt người mua, trạng thái đơn mua"""
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     mobile=models.CharField(max_length=50,null=True)
     address=models.TextField()
