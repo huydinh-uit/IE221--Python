@@ -12,23 +12,31 @@ from django.urls import reverse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from paypal.standard.forms import PayPalPaymentsForm
+
+
+""""Các funtion cần cho web, xử lý các http request """
+""""is_featured poduct = data"""
 # Home Page
+""""input: get home page request, output: homepage(index.html file, banner, is_featured product)"""
 def home(request):
 	banners=Banner.objects.all().order_by('-id')
 	data=Product.objects.filter(is_featured=True).order_by('-id')
 	return render(request,'index.html',{'data':data,'banners':banners})
 
 # Category
+""""input: request category page, output: page(category_list.html file,is_featured product)"""
 def category_list(request):
     data=Category.objects.all().order_by('-id')
     return render(request,'category_list.html',{'data':data})
 
 # Brand
+""""input: request brand page, output: page(brand_list.html file,is_featured product)"""
 def brand_list(request):
     data=Brand.objects.all().order_by('-id')
     return render(request,'brand_list.html',{'data':data})
 
 # Product List
+""""input: request product page, output: page(product_list.html file,is_featured product,bộ lọc giá tiền min, max của sản phẩm)"""
 def product_list(request):
 	total_data=Product.objects.count()
 	data=Product.objects.all().order_by('-id')[:3]
@@ -44,6 +52,7 @@ def product_list(request):
 		)
 
 # Product List According to Category
+""""input: request xem sản phẩm theo category, output: page (category_product_list.html file,is_featured product)"""
 def category_product_list(request,cat_id):
 	category=Category.objects.get(id=cat_id)
 	data=Product.objects.filter(category=category).order_by('-id')
@@ -52,6 +61,7 @@ def category_product_list(request,cat_id):
 			})
 
 # Product List According to Brand
+""""input: request xem sản phẩm theo tác giả, output: page (brand_product_list.html file,is_featured product)"""
 def brand_product_list(request,brand_id):
 	brand=Brand.objects.get(id=brand_id)
 	data=Product.objects.filter(brand=brand).order_by('-id')
@@ -60,10 +70,11 @@ def brand_product_list(request,brand_id):
 			})
 
 # Product Detail
+""""input: request xem sản phẩm chi tiết, output: page (sản phẩm, thuộc tính sản phẩm, review, các sản phẩm liên quan)"""
 def product_detail(request,slug,id):
 	product=Product.objects.get(id=id)
 	related_products=Product.objects.filter(category=product.category).exclude(id=id)[:4]
-	colors=ProductAttribute.objects.filter(product=product).values('color__id','color__title','color__color_code').distinct()
+	#colors=ProductAttribute.objects.filter(product=product).values('color__id','color__title','color__color_code').distinct()
 	sizes=ProductAttribute.objects.filter(product=product).values('size__id','size__title','price','color__id').distinct()
 	reviewForm=ReviewAdd()
 
@@ -83,15 +94,16 @@ def product_detail(request,slug,id):
 	avg_reviews=ProductReview.objects.filter(product=product).aggregate(avg_rating=Avg('review_rating'))
 	# End
 
-	#return render(request, 'product_detail.html',{'data':product,'related':related_products,'colors':colors,'sizes':sizes,'reviewForm':reviewForm,'reviews':reviews,'avg_reviews':avg_reviews})
-	return render(request, 'product_detail.html',{'data':product,'related':related_products,'colors':colors,'sizes':sizes,'reviewForm':reviewForm,'canAdd':canAdd,'reviews':reviews,'avg_reviews':avg_reviews})
+	return render(request, 'product_detail.html',{'data':product,'related':related_products,'sizes':sizes,'reviewForm':reviewForm,'canAdd':canAdd,'reviews':reviews,'avg_reviews':avg_reviews})
 # Search
+""""input: request tìm kiếm sản phẩm, output: page (search.html file,các sản phẩm thỏa điều kiện )"""
 def search(request):
 	q=request.GET['q']
 	data=Product.objects.filter(title__icontains=q).order_by('-id')
 	return render(request,'search.html',{'data':data})
 
 # Filter Data
+""""input: request lọc sản phẩm tùy nhu cầu, output: page (product_list.html file,các sản phẩm thoa điều kiện )"""
 def filter_data(request):
 	colors=request.GET.getlist('color[]')
 	categories=request.GET.getlist('category[]')
@@ -114,6 +126,7 @@ def filter_data(request):
 	return JsonResponse({'data':t})
 
 # Load More
+""""input: request tải thêm các sản phẩm khác, output: page (product_list.html file,is_featured product)"""
 def load_more_data(request):
 	offset=int(request.GET['offset'])
 	limit=int(request.GET['limit'])
@@ -123,6 +136,7 @@ def load_more_data(request):
 )
 
 # Add to cart
+""""input: request thêm sản phẩm vào giỏ hàng, output: sản phẩm được thêm vào giỏ hàng"""
 def add_to_cart(request):
 	# del request.session['cartdata']
 	cart_p={}
@@ -147,6 +161,7 @@ def add_to_cart(request):
 	return JsonResponse({'data':request.session['cartdata'],'totalitems':len(request.session['cartdata'])})
 
 # Cart List Page
+""""input: request xem giỏ hàng, output: page (cart.html file,sản phẩm, số lượng, giá tiền, tổng tiền)"""
 def cart_list(request):
 	total_amt=0
 	if 'cartdata' in request.session:
@@ -158,6 +173,7 @@ def cart_list(request):
 
 
 # Delete Cart Item
+""""input: request xóa sản phẩm khỏi giỏ hàng, output: sản phẩm được xóa"""
 def delete_cart_item(request):
 	p_id=str(request.GET['id'])
 	if 'cartdata' in request.session:
@@ -171,7 +187,8 @@ def delete_cart_item(request):
 	t=render_to_string('ajax/cart-list.html',{'cart_data':request.session['cartdata'],'totalitems':len(request.session['cartdata']),'total_amt':total_amt})
 	return JsonResponse({'data':t,'totalitems':len(request.session['cartdata'])})
 
-# Delete Cart Item
+# Update Cart Item
+""""input: request thay đổi, update số lượng sản phẩm, output: sản phẩm trong giỏ hàng được update thông tin"""
 def update_cart_item(request):
 	p_id=str(request.GET['id'])
 	p_qty=request.GET['qty']
@@ -187,6 +204,7 @@ def update_cart_item(request):
 	return JsonResponse({'data':t,'totalitems':len(request.session['cartdata'])})
 
 # Signup Form
+""""input: request đăng ký thành viên, output:registration/signup.html """
 def signup(request):
 	if request.method=='POST':
 		form=SignupForm(request.POST)
@@ -202,6 +220,7 @@ def signup(request):
 
 
 # Checkout
+""""input: request thanh toán, output:thanh toán thành công/fail """
 @login_required
 def checkout(request):
 	total_amt=0
@@ -256,6 +275,7 @@ def payment_canceled(request):
 
 
 # Save Review
+""""input: request gửi review, output:review đc lưu trữ """
 def save_review(request,pid):
 	product=Product.objects.get(pk=pid)
 	user=request.user
@@ -278,6 +298,7 @@ def save_review(request,pid):
 	return JsonResponse({'bool':True,'data':data,'avg_reviews':avg_reviews})
 
 # User Dashboard
+""""Hiển thị thông tin người dùng"""
 import calendar
 def my_dashboard(request):
 	orders=CartOrder.objects.annotate(month=ExtractMonth('order_dt')).values('month').annotate(count=Count('id')).values('month','count')
@@ -289,17 +310,20 @@ def my_dashboard(request):
 	return render(request, 'user/dashboard.html',{'monthNumber':monthNumber,'totalOrders':totalOrders})
 
 # My Orders
+""""input: request xem đơn hàng, output:user/orders.html """
 def my_orders(request):
 	orders=CartOrder.objects.filter(user=request.user).order_by('-id')
 	return render(request, 'user/orders.html',{'orders':orders})
 
 # Order Detail
+""""input: request xem chi tiết đơn hàng, output:user/order-items.html """
 def my_order_items(request,id):
 	order=CartOrder.objects.get(pk=id)
 	orderitems=CartOrderItems.objects.filter(order=order).order_by('-id')
 	return render(request, 'user/order-items.html',{'orderitems':orderitems})
 
 # Wishlist
+""""input: request thêm sản phẩm vào danh sách yêu thích, output:sản phẩm đc thêm vào danh sách """
 def add_wishlist(request):
 	pid=request.GET['product']
 	product=Product.objects.get(pk=pid)
@@ -320,21 +344,25 @@ def add_wishlist(request):
 	return JsonResponse(data)
 
 # My Wishlist
+""""input: request xem danh sách yêu thích, output: user/wishlist.html """
 def my_wishlist(request):
 	wlist=Wishlist.objects.filter(user=request.user).order_by('-id')
 	return render(request, 'user/wishlist.html',{'wlist':wlist})
 
 # My Reviews
+""""input: request xem review của chính user, output: user/review.html """
 def my_reviews(request):
 	reviews=ProductReview.objects.filter(user=request.user).order_by('-id')
 	return render(request, 'user/reviews.html',{'reviews':reviews})
 
 # My AddressBook
+""""input: request xem thông tin liên hệ địa chỉ giao hàng của user, output: user/addressbook.html """
 def my_addressbook(request):
 	addbook=UserAddressBook.objects.filter(user=request.user).order_by('-id')
 	return render(request, 'user/addressbook.html',{'addbook':addbook})
 
 # Save addressbook
+""""input: request lưu thông tin liên hệ địa chỉ giao hàng của user, output: thông tin được lưu """
 def save_address(request):
 	msg=None
 	if request.method=='POST':
@@ -357,6 +385,7 @@ def activate_address(request):
 	return JsonResponse({'bool':True})
 
 # Edit Profile
+""""input: request chỉnh sửa thông tin user, output: thông tin được chỉnh sửa """
 def edit_profile(request):
 	msg=None
 	if request.method=='POST':
@@ -368,6 +397,7 @@ def edit_profile(request):
 	return render(request, 'user/edit-profile.html',{'form':form,'msg':msg})
 
 # Update addressbook
+""""input: request cập nhật thông tin liên hệ địa chỉ giao hàng của user, output: thông tin được cập nhật """
 def update_address(request,id):
 	address=UserAddressBook.objects.get(pk=id)
 	msg=None
