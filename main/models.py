@@ -47,18 +47,18 @@ class Brand(models.Model):
         return self.title
 
 # Color
-class Color(models.Model):
-    title=models.CharField(max_length=100)
-    color_code=models.CharField(max_length=100)
+# class Color(models.Model):
+#     title=models.CharField(max_length=100)
+#     color_code=models.CharField(max_length=100)
 
-    class Meta:
-        verbose_name_plural='4. Colors'
+#     class Meta:
+#         verbose_name_plural='4. Colors'
 
-    def color_bg(self):
-        return mark_safe('<div style="width:30px; height:30px; background-color:%s"></div>' % (self.color_code))
+#     def color_bg(self):
+#         return mark_safe('<div style="width:30px; height:30px; background-color:%s"></div>' % (self.color_code))
 
-    def __str__(self):
-        return self.title
+#     def __str__(self):
+#         return self.title
 
 # Size So trang
 """"Số trang"""
@@ -94,7 +94,7 @@ class Product(models.Model):
 class ProductAttribute(models.Model):
     """"Class chứa các thuộc tính của class Product"""
     product=models.ForeignKey(Product,on_delete=models.CASCADE)
-    color=models.ForeignKey(Color,on_delete=models.CASCADE)
+    #color=models.ForeignKey(Color,on_delete=models.CASCADE)
     size=models.ForeignKey(Size,on_delete=models.CASCADE)
     price=models.PositiveIntegerField(default=0)
     image=models.ImageField(upload_to="product_imgs/",null=True)

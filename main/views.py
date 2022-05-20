@@ -17,7 +17,7 @@ from paypal.standard.forms import PayPalPaymentsForm
 """"Các funtion cần cho web, xử lý các http request """
 """"is_featured poduct = data"""
 # Home Page
-""""input: get home page request, output: homepage(index.html file, banner, is_featured product)"""
+""""input:  homepage request, output: homepage(index.html file, banner, is_featured product)"""
 def home(request):
 	banners=Banner.objects.all().order_by('-id')
 	data=Product.objects.filter(is_featured=True).order_by('-id')
@@ -75,15 +75,15 @@ def product_detail(request,slug,id):
 	product=Product.objects.get(id=id)
 	related_products=Product.objects.filter(category=product.category).exclude(id=id)[:4]
 	#colors=ProductAttribute.objects.filter(product=product).values('color__id','color__title','color__color_code').distinct()
-	sizes=ProductAttribute.objects.filter(product=product).values('size__id','size__title','price','color__id').distinct()
+	sizes=ProductAttribute.objects.filter(product=product).values('size__id','size__title','price').distinct()
 	reviewForm=ReviewAdd()
 
 	# Check
 	canAdd=True
-	reviewCheck=ProductReview.objects.filter(user=request.user,product=product).count()
-	if request.user.is_authenticated:
-		if reviewCheck > 0:
-			canAdd=False
+	#reviewCheck=ProductReview.objects.filter(user=request.user,product=product).count()
+	# if request.user.is_authenticated:
+	# 	if reviewCheck > 0:
+	# 		canAdd=False
 	# End
 
 	# Fetch reviews
@@ -105,7 +105,7 @@ def search(request):
 # Filter Data
 """"input: request lọc sản phẩm tùy nhu cầu, output: page (product_list.html file,các sản phẩm thoa điều kiện )"""
 def filter_data(request):
-	colors=request.GET.getlist('color[]')
+	#colors=request.GET.getlist('color[]')
 	categories=request.GET.getlist('category[]')
 	brands=request.GET.getlist('brand[]')
 	sizes=request.GET.getlist('size[]')
@@ -114,8 +114,8 @@ def filter_data(request):
 	allProducts=Product.objects.all().order_by('-id').distinct()
 	allProducts=allProducts.filter(productattribute__price__gte=minPrice)
 	allProducts=allProducts.filter(productattribute__price__lte=maxPrice)
-	if len(colors)>0:
-		allProducts=allProducts.filter(productattribute__color__id__in=colors).distinct()
+	#if len(colors)>0:
+		#allProducts=allProducts.filter(productattribute__color__id__in=colors).distinct()
 	if len(categories)>0:
 		allProducts=allProducts.filter(category__id__in=categories).distinct()
 	if len(brands)>0:
